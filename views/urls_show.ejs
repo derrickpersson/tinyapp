@@ -5,8 +5,13 @@
   <% include ./partials/_header.ejs %>
 </head>
 <body>
-  <ul>
-      <li> <%=  longURL %> || <%= shortURL %> </li>
-  </ul>
+  <div>
+     <p> <b>ShortURL</b> : <%= shortURL %> </p>
+     <p><form method="post" action="/urls/<%= shortURL %>">
+      <input name="longURL" type="text" value="<%= longURL %>" style="width:300px">
+      <button>Update</button>
+     </form>
+    </p>
+  </div>
 </body>
 </html>

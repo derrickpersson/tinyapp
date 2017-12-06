@@ -59,6 +59,12 @@ app.post('/urls/:id/delete', function(req, res){
   res.redirect("/urls");
 });
 
+app.post('/urls/:id', function(req, res){
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.status(200);
+  res.redirect('/urls/' + req.params.id);
+})
+
 //  URL Shortening functions:
 
 function generateRandomString(){

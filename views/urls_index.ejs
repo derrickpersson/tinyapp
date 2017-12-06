@@ -7,7 +7,7 @@
 <body>
   <ul>
     <% for(let url in urls){ %>
-      <li> <%= url %> &rarr; <%= urls[url] %> <a href="/urls/<%= url %>">Edit</a> <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete`%>><button>Delete</button></form> </li>
+      <li> <%= url %> &rarr; <%= urls[url] %> <a href="/urls/<%= url %>">Edit</a> <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete`%>><button type="submit" name="Submit">Delete</button></form> </li>
        <% } %>
   </ul>
 </body>

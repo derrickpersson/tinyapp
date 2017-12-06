@@ -71,8 +71,14 @@ app.post('/urls/:id', function(req, res){
 
 app.post('/login', function(req, res){
   res.cookie("username", req.body.username);
-  res.redirect('/urls')
+  res.redirect('/urls');
 })
+
+app.post('/logout', function(req, res){
+  res.clearCookie("username", req.body.username);
+  res.redirect('/urls');
+})
+
 
 //  URL Shortening functions:
 

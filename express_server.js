@@ -21,7 +21,8 @@ app.get("/", (req, res) => {
 });
 
 app.get('/urls', function(req, res){
-  let templateVar = { urls : urlDatabase}
+  let templateVar = { urls : urlDatabase,
+                      username: req.cookies["username"]}
   res.render('urls_index', templateVar);
 });
 
@@ -50,7 +51,9 @@ app.listen(PORT, () => {
 });
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {shortURL : req.params.id, longURL: urlDatabase[req.params.id]};
+  let templateVars = {shortURL : req.params.id,
+                      longURL: urlDatabase[req.params.id],
+                      username: req.cookies["username"]};
   res.render('urls_show', templateVars);
 });
 
@@ -67,7 +70,7 @@ app.post('/urls/:id', function(req, res){
 })
 
 app.post('/login', function(req, res){
-  res.cookie(req.body.username);
+  res.cookie("username", req.body.username);
   res.redirect('/urls')
 })
 

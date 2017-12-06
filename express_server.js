@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
-
+const cookieParser = require('cookie-parser');
 
 
 app.set('view engine', 'ejs');
@@ -14,6 +14,7 @@ const urlDatabase = {
 };
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.end("Hello!");

@@ -66,6 +66,11 @@ app.post('/urls/:id', function(req, res){
   res.redirect('/urls/' + req.params.id);
 })
 
+app.post('/login', function(req, res){
+  res.cookie(req.body.username);
+  res.redirect('/urls')
+})
+
 //  URL Shortening functions:
 
 function generateRandomString(){

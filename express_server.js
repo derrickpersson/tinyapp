@@ -9,7 +9,8 @@ app.set('view engine', 'ejs');
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+  "abc" : "http://www.example.org"
 };
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -29,8 +30,9 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // debug statement to see POST parameters
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  let urlShortName = generateRandomString();
+  urlDatabase[urlShortName] = req.body.longURL;
+  res.redirect(`/urls/${urlShortName}`);  // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -47,9 +49,16 @@ app.listen(PORT, () => {
 });
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {shortURL : req.params.id};
+  let templateVars = {shortURL : req.params.id, longURL: urlDatabase[req.params.id]};
   res.render('urls_show', templateVars);
 });
+
+app.post('/urls/:id/delete', function(req, res){
+  delete urlDatabase[req.params.id];
+  res.status(200);
+  res.redirect("/urls");
+});
+
 //  URL Shortening functions:
 
 function generateRandomString(){

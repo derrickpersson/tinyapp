@@ -27,16 +27,16 @@ app.set('view engine', 'ejs');
 const urlDatabase = {
   "b2xVn2": { id: "b2xVn2",
               longURL: "http://www.lighthouselabs.ca",
-              userID : "userRandomID"},
+              userid : "userRandomID"},
   "9sm5xK": { id: "9sm5xK",
               longURL: "http://www.google.com",
-              userID : "user2RandomID"},
+              userid : "user2RandomID"},
   "abc" : { id: "abc",
             longURL: "http://www.example.com",
-            userID : "test"},
+            userid : "test"},
   "xyz" : { id: "xyz",
             longURL: "http://abc.xyz",
-            userID : "test"}
+            userid : "test"}
 };
 
 const users = {
@@ -141,9 +141,13 @@ app.get('/urls/:id', function(req, res){
 });
 
 app.post('/urls/:id/delete', function(req, res){
-  delete urlDatabase[req.params.id];
-  res.status(200);
-  res.redirect("/urls");
+  if(users[req.cookies["user_id"]].id === urlDatabase[req.params.id].userid){
+    delete urlDatabase[req.params.id];
+    res.status(200);
+    res.redirect("/urls");
+  }else{
+    res.send("You don't have permission to do that!");
+  }
 });
 
 app.post('/urls/:id', function(req, res){

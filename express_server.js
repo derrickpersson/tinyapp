@@ -15,6 +15,7 @@ const urlDatabase = {
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(express.static('public'));
 
 app.get("/", (req, res) => {
   res.end("Hello!");
@@ -78,6 +79,15 @@ app.post('/logout', function(req, res){
   res.clearCookie("username", req.body.username);
   res.redirect('/urls');
 })
+
+app.post('/register', function(req, res){
+
+
+});
+
+app.get('/register', function(req, res){
+  res.sendFile('public/register.html', { root : __dirname });
+});
 
 
 //  URL Shortening functions:

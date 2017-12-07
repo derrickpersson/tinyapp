@@ -141,7 +141,7 @@ app.post('/urls/:id', function(req, res){
 
 app.post('/logout', function(req, res){
   users[req.cookies["user_id"]].loggedin = false;
-  // res.clearCookie("user_id");
+  res.clearCookie("user_id");
   res.redirect('/urls');
 })
 

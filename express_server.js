@@ -25,18 +25,26 @@ function generateRandomString(){
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  "b2xVn2": { id: "b2xVn2",
-              longURL: "http://www.lighthouselabs.ca",
-              userid : "userRandomID"},
-  "9sm5xK": { id: "9sm5xK",
-              longURL: "http://www.google.com",
-              userid : "user2RandomID"},
-  "abc" : { id: "abc",
-            longURL: "http://www.example.com",
-            userid : "test"},
-  "xyz" : { id: "xyz",
-            longURL: "http://abc.xyz",
-            userid : "test"}
+  "b2xVn2": {
+    id: "b2xVn2",
+    longURL: "http://www.lighthouselabs.ca",
+    userid : "userRandomID"
+  },
+  "9sm5xK": {
+    id: "9sm5xK",
+    longURL: "http://www.google.com",
+    userid : "user2RandomID"
+  },
+  "abc" : {
+    id: "abc",
+    longURL: "http://www.example.com",
+    userid : "test"
+  },
+  "xyz" : {
+    id: "xyz",
+    longURL: "http://abc.xyz",
+    userid : "test"
+  }
 };
 
 const users = {
@@ -120,7 +128,7 @@ app.get('/urls/new', (req, res) => {
 app.post("/urls", (req, res) => {
   let urlShortName = generateRandomString();
   urlDatabase[urlShortName] = req.body.longURL;
-  res.redirect(`/urls/${urlShortName}`);  // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${urlShortName}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -134,8 +142,9 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {shortURL : req.params.id,
-                      longURL: urlDatabase[req.params.id],
+  let templateVars = {urls : urlDatabase,
+                      shortURL : req.params.id,
+                      longURL: urlDatabase[req.params.id].longURL,
                       user : users[req.cookies["user_id"]]};
   res.render('urls_show', templateVars);
 });
@@ -146,14 +155,20 @@ app.post('/urls/:id/delete', function(req, res){
     res.status(200);
     res.redirect("/urls");
   }else{
+    res.status(401);
     res.send("You don't have permission to do that!");
   }
 });
 
 app.post('/urls/:id', function(req, res){
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.status(200);
-  res.redirect('/urls/' + req.params.id);
+  if(users[req.cookies["user_id"]].id === urlDatabase[req.params.id].userid){
+    urlDatabase[req.params.id].longURL = req.body.longURL;
+    res.status(200);
+    res.redirect('/urls/' + req.params.id);
+  }else{
+    res.status(401);
+    res.send("You don't have permission to do that!");
+  }
 })
 
 

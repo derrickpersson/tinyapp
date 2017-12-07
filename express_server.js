@@ -56,6 +56,7 @@ function checkEmailExistence(email){
   }
 }
 
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static('public'));
@@ -66,13 +67,15 @@ app.get("/", (req, res) => {
 
 app.get('/urls', function(req, res){
   let templateVar = { urls : urlDatabase,
-                      username: req.cookies["username"]}
+                      user : users[req.cookies["user_id"]]}
   res.render('urls_index', templateVar);
 });
 
 
 app.get('/urls/new', (req, res) => {
-  res.render("urls_new");
+  let templateVar = { urls : urlDatabase,
+                      user : users[req.cookies["user_id"]]}
+  res.render("urls_new", templateVar);
 });
 
 app.post("/urls", (req, res) => {
@@ -94,7 +97,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get('/urls/:id', function(req, res){
   let templateVars = {shortURL : req.params.id,
                       longURL: urlDatabase[req.params.id],
-                      username: req.cookies["username"]};
+                      user : users[req.cookies["user_id"]]};
   res.render('urls_show', templateVars);
 });
 
@@ -121,7 +124,6 @@ app.post('/logout', function(req, res){
 })
 
 app.post('/register', function(req, res){
-  console.log(req.body.eamil, req.body.password);
   if(!req.body.email || !req.body.password){
     res.status(400);
     res.send("Either email or password is missing");
@@ -138,8 +140,7 @@ app.post('/register', function(req, res){
   users[id] = { "id" : id,
               "username" : req.body.email,
               "password" : req.body.password};
-  console.log(users);
-  res.cookie("username", users[id].id);
+  res.cookie("user_id", users[id].id);
   res.redirect('/urls');
 });
 

@@ -113,10 +113,6 @@ app.post('/urls/:id', function(req, res){
   res.redirect('/urls/' + req.params.id);
 })
 
-app.post('/login', function(req, res){
-  res.cookie("username", req.body.username);
-  res.redirect('/urls');
-})
 
 app.post('/logout', function(req, res){
   res.clearCookie("username", req.body.username);
@@ -143,6 +139,15 @@ app.post('/register', function(req, res){
   res.cookie("user_id", users[id].id);
   res.redirect('/urls');
 });
+
+app.get('/login', (req,res) => {
+  res.render('login');
+});
+
+app.post('/login', function(req, res){
+  res.cookie("username", req.body.username);
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

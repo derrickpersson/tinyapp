@@ -48,6 +48,13 @@ const users = {
   }
 }
 
+function checkEmailExistence(email){
+  for(var k in users){
+    if(email === users[k].email){
+      return true;
+    }
+  }
+}
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -114,6 +121,19 @@ app.post('/logout', function(req, res){
 })
 
 app.post('/register', function(req, res){
+  console.log(req.body.eamil, req.body.password);
+  if(!req.body.email || !req.body.password){
+    res.status(400);
+    res.send("Either email or password is missing");
+    return;
+  }
+
+  if(checkEmailExistence(req.body.email)){
+    res.status(400);
+    res.send("Email already exists");
+    return;
+  }
+
   let id = generateRandomString();
   users[id] = { "id" : id,
               "username" : req.body.email,
@@ -121,7 +141,6 @@ app.post('/register', function(req, res){
   console.log(users);
   res.cookie("username", users[id].id);
   res.redirect('/urls');
-
 });
 
 app.listen(PORT, () => {

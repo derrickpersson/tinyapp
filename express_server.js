@@ -25,9 +25,18 @@ function generateRandomString(){
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "abc" : "http://www.example.org"
+  "b2xVn2": { id: "b2xVn2",
+              longURL: "http://www.lighthouselabs.ca",
+              userID : "userRandomID"},
+  "9sm5xK": { id: "9sm5xK",
+              longURL: "http://www.google.com",
+              userID : "user2RandomID"},
+  "abc" : { id: "abc",
+            longURL: "http://www.example.com",
+            userID : "test"},
+  "xyz" : { id: "xyz",
+            longURL: "http://abc.xyz",
+            userID : "test"}
 };
 
 const users = {

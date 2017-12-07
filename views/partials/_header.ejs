@@ -1,10 +1,11 @@
-<% if(user.id){ %>
+<% if(user === undefined ){ %>
+
+  <a href="/register"> Register </a>
+
+<%}else if(user.loggedin === true){ %>
   <p> <%= user.id %> </p>
   <form method="POST" action="/logout" style="display:inline"><button type="submit" name="Submit"> Log Out </button></form>
-<% }else{ %>
+<% } else if(user.id){ %>
+  <a href="/login"> Login </a>
 
-
-
-  <% } %>
-
-
+<% } %>

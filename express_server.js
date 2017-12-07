@@ -34,26 +34,51 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "purple-monkey-dinosaur",
+    loggedin: false
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "dishwasher-funk",
+    loggedin: false
   },
    "test": {
     id: "test",
     email: "test@example.com",
-    password: "test"
+    password: "test",
+    loggedin: false
   }
 }
 
-function checkEmailExistence(email){
-  for(var k in users){
-    if(email === users[k].email){
+function checkEmailExistence(email, users){
+  for(let uid in users){
+    if(email === users[uid].email){
       return true;
     }
   }
+  return false;
+}
+
+function checkPassword(email, password, users){
+  for(let user in users){
+    if(email === users[user].email){
+      if(password === users[user].password){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function lookupUserId(email, users){
+  let result = "";
+  for(let user in users){
+    if(email === users[user].email){
+      result = users[user].id;
+    }
+  }
+  return result;
 }
 
 
@@ -115,7 +140,8 @@ app.post('/urls/:id', function(req, res){
 
 
 app.post('/logout', function(req, res){
-  res.clearCookie("username", req.body.username);
+  users[req.cookies["user_id"]].loggedin = false;
+  // res.clearCookie("user_id");
   res.redirect('/urls');
 })
 
@@ -134,8 +160,9 @@ app.post('/register', function(req, res){
 
   let id = generateRandomString();
   users[id] = { "id" : id,
-              "username" : req.body.email,
-              "password" : req.body.password};
+              "email" : req.body.email,
+              "password" : req.body.password,
+              "loggedin" : true};
   res.cookie("user_id", users[id].id);
   res.redirect('/urls');
 });
@@ -145,8 +172,20 @@ app.get('/login', (req,res) => {
 });
 
 app.post('/login', function(req, res){
-  res.cookie("username", req.body.username);
-  res.redirect('/urls');
+  if(checkEmailExistence(req.body.email, users)){
+    if(checkPassword(req.body.email, req.body.password, users)){
+      let userId = lookupUserId(req.body.email, users);
+      res.cookie("user_id", userId);
+      users[userId].loggedin = true;
+      res.redirect('/urls');
+    }else{
+      res.status(403);
+      res.send("Invalid Password.");
+    }
+  }else{
+    res.status(403);
+    res.send("Invalid Username");
+  }
 })
 
 app.listen(PORT, () => {

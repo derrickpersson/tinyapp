@@ -134,6 +134,15 @@ function urlsForUser(id){
   return result;
 }
 
+function checkUniqueVisit(user, previousVisits){
+  for(let i = 0; i < previousVisits.length; i++){
+    if(user === previousVisits[i]){
+      return false;
+    }
+  }
+  return true;
+}
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -173,6 +182,7 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
+
 app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
 
@@ -180,6 +190,9 @@ app.get("/u/:shortURL", (req, res) => {
     let longURL = urlDatabase[shortURL].longURL;
     if(longURL){
       urlDatabase[shortURL].clicks += 1;
+      if(checkUniqueVisit(res.locals.user.id, urlDatabase[shortURL].uniqueClicks)){
+        urlDatabase[shortURL].uniqueClicks.push(res.locals.user.id);
+      }
       res.redirect(longURL);
       return;
     }

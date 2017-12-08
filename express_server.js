@@ -212,7 +212,7 @@ app.post('/urls/:id', function(req, res){
   if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.status(200);
-    res.redirect('/urls/' + req.params.id);
+    res.redirect('/urls');
   }else{
     res.status(401);
     res.send("You don't have permission to do that!");
@@ -249,7 +249,11 @@ app.post('/register', function(req, res){
 });
 
 app.get('/login', (req,res) => {
-  res.render('login');
+  if(users[req.session["user_id"]] === undefined ){
+    res.render('login');
+    return;
+  }
+    res.status(301).redirect('/urls');
 });
 
 app.post('/login', function(req, res){

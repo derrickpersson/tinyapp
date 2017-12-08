@@ -3,6 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 function generateRandomString(){
   let text = "";
@@ -80,7 +81,7 @@ function checkEmailExistence(email, users){
 function checkPassword(email, password, users){
   for(let user in users){
     if(email === users[user].email){
-      if(password === users[user].password){
+      if(bcrypt.compareSync(password, users[user].password)){
         return true;
       }
     }
@@ -212,7 +213,7 @@ app.post('/register', function(req, res){
   let id = generateRandomString();
   users[id] = { "id" : id,
               "email" : req.body.email,
-              "password" : req.body.password,
+              "password" : bcrypt.hashSync(req.body.password, 11),
               "loggedin" : true};
   res.cookie("user_id", users[id].id);
   res.redirect('/urls');

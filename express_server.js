@@ -98,6 +98,16 @@ function lookupUserId(email, users){
   return result;
 }
 
+function urlsForUser(id){
+  let result = {};
+  for(let url in urlDatabase){
+    if(urlDatabase[url].userid === id){
+      result[url] = urlDatabase[url];
+    }
+  }
+  return result;
+}
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -108,7 +118,7 @@ app.get("/", (req, res) => {
 });
 
 app.get('/urls', function(req, res){
-  let templateVar = { urls : urlDatabase,
+  let templateVar = { urls : urlsForUser(req.cookies["user_id"]),
                       user : users[req.cookies["user_id"]]}
   res.render('urls_index', templateVar);
 });
@@ -132,7 +142,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].longURL;
   if(longURL){
     res.redirect(longURL);
   } else {
@@ -142,11 +152,19 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {urls : urlDatabase,
-                      shortURL : req.params.id,
-                      longURL: urlDatabase[req.params.id].longURL,
-                      user : users[req.cookies["user_id"]]};
-  res.render('urls_show', templateVars);
+  let templateVars = {
+    urls : urlDatabase,
+    shortURL : req.params.id,
+    longURL: urlDatabase[req.params.id].longURL,
+    user : users[req.cookies["user_id"]]
+  };
+  if(templateVars.user){
+    if(users[req.cookies["user_id"]].id === urlDatabase[req.params.id].userid){
+      res.status(200).render('urls_show', templateVars);
+      return;
+    }
+  }
+  res.status(401).send("Please log in to see this information");
 });
 
 app.post('/urls/:id/delete', function(req, res){

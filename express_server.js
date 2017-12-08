@@ -138,8 +138,7 @@ function checkUniqueVisit(user, previousVisits){
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
-  keys: ["Secrets!!"],
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  keys: ["Secrets!!"]
 }));
 app.use(express.static('public'));
 
@@ -273,10 +272,12 @@ app.post('/register', function(req, res){
   }
 
   let id = generateRandomString();
-  users[id] = { "id" : id,
-              "email" : req.body.email,
-              "password" : bcrypt.hashSync(req.body.password, 11),
-              "loggedin" : true};
+  users[id] = {
+    "id" : id,
+    "email" : req.body.email,
+    "password" : bcrypt.hashSync(req.body.password, 11),
+    "loggedin" : true
+  };
   req.session["user_id"] = users[id].id;
   res.redirect('/urls');
 });

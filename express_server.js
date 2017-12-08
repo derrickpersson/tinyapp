@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 
 function generateRandomString(){
   let text = "";
@@ -153,45 +154,35 @@ app.use(cookieSession({
 }));
 app.use(express.static('public'));
 
-app.get("/", (req, res) => {
-  let templateVar = { urls : urlDatabase,
-                      user : users[req.session["user_id"]]}
+app.use(function(req, res, next){
+  res.locals.user = users[req.session["user_id"]];
+  req.loggedIn = !!res.locals.user;
+  next();
+});
 
-  if(templateVar.user === undefined){
-    res.redirect('/login');
-  }else{
+// Get the URLs page if logged in, otherwise re-direct to Login.
+app.get("/", (req, res) => {
+  if(req.logginIn){
     res.redirect("/urls");
+  }else{
+    res.redirect('/login');
   }
 });
 
 app.get('/urls', function(req, res){
-  let templateVar = { urls : urlsForUser(req.session["user_id"]),
-                      user : users[req.session["user_id"]]}
+  let templateVar = {
+    urls: urlsForUser(req.session["user_id"]),
+  };
   res.render('urls_index', templateVar);
 });
 
 
 app.get('/urls/new', (req, res) => {
-  let templateVar = { urls : urlDatabase,
-                      user : users[req.session["user_id"]]}
-
   if(templateVar.user === undefined){
     res.redirect('/login');
   }else{
   res.render("urls_new", templateVar);
   }
-});
-
-app.post("/urls", (req, res) => {
-  let urlShortName = generateRandomString();
-  urlDatabase[urlShortName] = {
-    id : urlShortName,
-    longURL : req.body.longURL,
-    userid : users[req.session["user_id"]].id,
-    clicks : 0,
-    createdDate : getCreatedDate()
-  };
-  res.redirect(`/urls/${urlShortName}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -205,7 +196,6 @@ app.get("/u/:shortURL", (req, res) => {
   }
   res.status(404).send("Page Not Found");
 });
-
 
 app.get('/urls/:id', function(req, res){
   if(checkValidShortId(req.params.id)){
@@ -225,6 +215,26 @@ app.get('/urls/:id', function(req, res){
   }else{
     res.status(400).send("Invalid request");
   }
+});
+
+app.get('/login', (req,res) => {
+  if(users[req.session["user_id"]] === undefined ){
+    res.render('login');
+    return;
+  }
+    res.status(301).redirect('/urls');
+});
+
+app.post("/urls", (req, res) => {
+  let urlShortName = generateRandomString();
+  urlDatabase[urlShortName] = {
+    id : urlShortName,
+    longURL : req.body.longURL,
+    userid : users[req.session["user_id"]].id,
+    clicks : 0,
+    createdDate : getCreatedDate()
+  };
+  res.redirect(`/urls/${urlShortName}`);
 });
 
 app.post('/urls/:id', function(req, res){
@@ -277,13 +287,6 @@ app.post('/register', function(req, res){
   res.redirect('/urls');
 });
 
-app.get('/login', (req,res) => {
-  if(users[req.session["user_id"]] === undefined ){
-    res.render('login');
-    return;
-  }
-    res.status(301).redirect('/urls');
-});
 
 app.post('/login', function(req, res){
   if(checkEmailExistence(req.body.email, users)){

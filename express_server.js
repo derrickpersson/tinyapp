@@ -176,9 +176,9 @@ app.get('/urls', function(req, res){
 
 app.get('/urls/new', (req, res) => {
   if(req.loggedIn){
-    res.redirect('/login');
-  }else{
   res.render("urls_new");
+  }else{
+  res.redirect('/login');
   }
 });
 

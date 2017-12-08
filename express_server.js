@@ -29,22 +29,34 @@ const urlDatabase = {
   "b2xVn2": {
     id: "b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
-    userid : "userRandomID"
+    userid : "userRandomID",
+    clicks : 0,
+    createdDate : getCreatedDate(),
+    uniqueClicks : 0
   },
   "9sm5xK": {
     id: "9sm5xK",
     longURL: "http://www.google.com",
-    userid : "user2RandomID"
+    userid : "user2RandomID",
+    clicks : 0,
+    createdDate : getCreatedDate(),
+    uniqueClicks : 0
   },
   "abc" : {
     id: "abc",
     longURL: "http://www.example.com",
-    userid : "test"
+    userid : "test",
+    clicks : 0,
+    createdDate : getCreatedDate(),
+    uniqueClicks : 0
   },
   "xyz" : {
     id: "xyz",
     longURL: "http://abc.xyz",
-    userid : "test"
+    userid : "test",
+    clicks : 0,
+    createdDate : getCreatedDate(),
+    uniqueClicks : 0
   }
 };
 
@@ -67,6 +79,21 @@ const users = {
     password: bcrypt.hashSync("test", 11),
     loggedin: false
   }
+}
+
+function getCreatedDate(){
+  let todaysDate = new Date();
+  let dd = todaysDate.getDate();
+  let mm = todaysDate.getMonth() + 1;
+  let yyyy = todaysDate.getFullYear();
+
+  if(dd < 10){
+    dd = '0' + dd;
+  }
+  if(mm < 10){
+    mm = '0' + mm;
+  }
+  return today = dd + '/' + mm + '/' + yyyy;
 }
 
 function checkEmailExistence(email, users){
@@ -160,7 +187,9 @@ app.post("/urls", (req, res) => {
   urlDatabase[urlShortName] = {
     id : urlShortName,
     longURL : req.body.longURL,
-    userid : users[req.session["user_id"]].id
+    userid : users[req.session["user_id"]].id,
+    clicks : 0,
+    createdDate : getCreatedDate()
   };
   res.redirect(`/urls/${urlShortName}`);
 });
@@ -169,6 +198,7 @@ app.get("/u/:shortURL", (req, res) => {
   if(checkValidShortId(req.params.shortURL)){
     let longURL = urlDatabase[req.params.shortURL].longURL;
     if(longURL){
+      urlDatabase[req.params.shortURL].clicks += 1;
       res.redirect(longURL);
       return;
     }
@@ -180,7 +210,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get('/urls/:id', function(req, res){
   if(checkValidShortId(req.params.id)){
     let templateVars = {
-      urls : urlDatabase,
+      url : urlDatabase[req.params.id],
       shortURL : req.params.id,
       longURL: urlDatabase[req.params.id].longURL,
       user : users[req.session["user_id"]]
@@ -197,17 +227,6 @@ app.get('/urls/:id', function(req, res){
   }
 });
 
-app.post('/urls/:id/delete', function(req, res){
-  if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
-    delete urlDatabase[req.params.id];
-    res.status(200);
-    res.redirect("/urls");
-  }else{
-    res.status(401);
-    res.send("You don't have permission to do that!");
-  }
-});
-
 app.post('/urls/:id', function(req, res){
   if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
     urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -219,6 +238,16 @@ app.post('/urls/:id', function(req, res){
   }
 })
 
+app.post('/urls/:id/delete', function(req, res){
+  if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
+    delete urlDatabase[req.params.id];
+    res.status(200);
+    res.redirect("/urls");
+  }else{
+    res.status(401);
+    res.send("You don't have permission to do that!");
+  }
+});
 
 app.post('/logout', function(req, res){
   users[req.session["user_id"]].loggedin = false;

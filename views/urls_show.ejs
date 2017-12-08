@@ -6,12 +6,15 @@
 </head>
 <body>
   <div>
-     <p> <b>ShortURL</b> : <%= shortURL %> </p>
+     <p> <b>ShortURL</b> : <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
      <p><form method="post" action="/urls/<%= shortURL %>">
       <input name="longURL" type="text" value="<%= longURL %>" style="width:300px">
       <button type="submit" name="Submit">Update</button>
      </form>
     </p>
+    <P> Clicks: <%= url.clicks %></P>
+    <p> Created Date: <%= url.createdDate %> </p>
+    <p> Unique Visits: <%= url.uniqueClicks %> </p>
   </div>
 </body>
 </html>

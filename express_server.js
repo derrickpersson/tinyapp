@@ -109,6 +109,14 @@ function urlsForUser(id){
   return result;
 }
 
+function checkValidShortId(id){
+  for(let url in urlDatabase){
+    if(id === urlDatabase[url].id){
+      return true;
+    }
+  }
+  return false;
+}
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -119,7 +127,14 @@ app.use(cookieSession({
 app.use(express.static('public'));
 
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  let templateVar = { urls : urlDatabase,
+                      user : users[req.session["user_id"]]}
+
+  if(templateVar.user === undefined){
+    res.redirect('/login');
+  }else{
+    res.redirect("/urls");
+  }
 });
 
 app.get('/urls', function(req, res){
@@ -142,34 +157,44 @@ app.get('/urls/new', (req, res) => {
 
 app.post("/urls", (req, res) => {
   let urlShortName = generateRandomString();
-  urlDatabase[urlShortName] = req.body.longURL;
+  urlDatabase[urlShortName] = {
+    id : urlShortName,
+    longURL : req.body.longURL,
+    userid : users[req.session["user_id"]].id
+  };
   res.redirect(`/urls/${urlShortName}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL].longURL;
-  if(longURL){
-    res.redirect(longURL);
-  } else {
-    res.status(404).send("Page Not Found");
+  if(checkValidShortId(req.params.shortURL)){
+    let longURL = urlDatabase[req.params.shortURL].longURL;
+    if(longURL){
+      res.redirect(longURL);
+      return;
+    }
   }
+  res.status(404).send("Page Not Found");
 });
 
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {
-    urls : urlDatabase,
-    shortURL : req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
-    user : users[req.session["user_id"]]
-  };
-  if(templateVars.user){
-    if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
-      res.status(200).render('urls_show', templateVars);
-      return;
+  if(checkValidShortId(req.params.id)){
+    let templateVars = {
+      urls : urlDatabase,
+      shortURL : req.params.id,
+      longURL: urlDatabase[req.params.id].longURL,
+      user : users[req.session["user_id"]]
+    };
+    if(templateVars.user){
+      if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
+        res.status(200).render('urls_show', templateVars);
+        return;
+      }
     }
+    res.status(401).send("Invalid request");
+  }else{
+    res.status(400).send("Invalid request");
   }
-  res.status(401).send("Please log in to see this information");
 });
 
 app.post('/urls/:id/delete', function(req, res){

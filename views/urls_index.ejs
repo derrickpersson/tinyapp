@@ -5,6 +5,11 @@
   <% include ./partials/_header.ejs %>
 </head>
 <body>
+  <br>
+  <br>
+  <a href="/urls/new"> Create a new short link here! </a>
+  <br>
+  <br>
   <ul>
     <% for(let url in urls){ %>
       <li> <%= url %> &rarr; <%= urls[url].longURL %> || <a href="/urls/<%= url %>"><button>Edit</button></a> || <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete`%>><button type="submit" name="Submit">Delete</button></form> </li>

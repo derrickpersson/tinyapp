@@ -10,17 +10,9 @@ function generateRandomString(){
   let text = "";
   let possibleText = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for(let i = 0; i < 6; i++){
-  // for(let i = 0; i < (Math.floor(Math.random() * (7 - 1) + 7)); i++){
     let randomLetter = Math.floor(Math.random() * (possibleText.length));
     text += possibleText[randomLetter];
-    // return Math.random() * (max - min) + min;
   }
-
-  // Advanced method:
-  // let text = "";
-  // for(let i = 0; i < 7; i++){
-  //   text += String.fromCharCode(Math.floor(Math.random() * ()))
-  // }
   return text;
 }
 
@@ -86,12 +78,12 @@ function getCreatedDate(){
   let yyyy = todaysDate.getFullYear();
 
   if(dd < 10){
-    dd = '0' + dd;
+    dd = `0${dd}`;
   }
   if(mm < 10){
-    mm = '0' + mm;
+    mm = `0${mm}`;
   }
-  return today = dd + '/' + mm + '/' + yyyy;
+  return today = `${dd}/${mm}/${yyyy}`;
 }
 
 function checkExistence(identifier, database, property){

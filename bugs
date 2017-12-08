@@ -1,2 +1,9 @@
 Need to add /register redirect for logged in users. (served up with a static resource page)
 
+
+app.use(function(req, res, next){
+  res.locals.user = users[req.session["user_id"]];
+  req.loggedIn = !!res.locals.user;
+  next();
+});
+

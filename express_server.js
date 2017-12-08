@@ -65,20 +65,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-    loggedin: false
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 11)
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
-    loggedin: false
+    password: bcrypt.hashSync("dishwasher-funk", 11)
   },
    "test": {
     id: "test",
     email: "test@example.com",
-    password: bcrypt.hashSync("test", 11),
-    loggedin: false
+    password: bcrypt.hashSync("test", 11)
   }
 }
 
@@ -178,10 +175,10 @@ app.get('/urls', function(req, res){
 
 
 app.get('/urls/new', (req, res) => {
-  if(templateVar.user === undefined){
+  if(req.loggedIn){
     res.redirect('/login');
   }else{
-  res.render("urls_new", templateVar);
+  res.render("urls_new");
   }
 });
 
@@ -218,7 +215,7 @@ app.get('/urls/:id', function(req, res){
 });
 
 app.get('/login', (req,res) => {
-  if(users[req.session["user_id"]] === undefined ){
+  if(req.loggedIn){
     res.render('login');
     return;
   }
@@ -238,7 +235,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/urls/:id', function(req, res){
-  if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
+  if(res.locals.user.id === urlDatabase[req.params.id].userid){
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.status(200);
     res.redirect('/urls');
@@ -249,7 +246,7 @@ app.post('/urls/:id', function(req, res){
 })
 
 app.post('/urls/:id/delete', function(req, res){
-  if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
+  if(res.locals.user.id === urlDatabase[req.params.id].userid){
     delete urlDatabase[req.params.id];
     res.status(200);
     res.redirect("/urls");
@@ -260,7 +257,6 @@ app.post('/urls/:id/delete', function(req, res){
 });
 
 app.post('/logout', function(req, res){
-  users[req.session["user_id"]].loggedin = false;
   req.session = null;
   res.redirect('/urls');
 })
@@ -293,7 +289,6 @@ app.post('/login', function(req, res){
     if(checkPassword(req.body.email, req.body.password, users)){
       let userId = lookupUserId(req.body.email, users);
       req.session["user_id"] = userId;
-      users[userId].loggedin = true;
       res.redirect('/urls');
     }else{
       res.status(403);

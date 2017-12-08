@@ -30,34 +30,34 @@ const urlDatabase = {
   "b2xVn2": {
     id: "b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
-    userid : "userRandomID",
-    clicks : 0,
-    createdDate : getCreatedDate(),
-    uniqueClicks : 0
+    userid: "userRandomID",
+    clicks: 0,
+    createdDate: getCreatedDate(),
+    uniqueClicks: []
   },
   "9sm5xK": {
     id: "9sm5xK",
     longURL: "http://www.google.com",
-    userid : "user2RandomID",
-    clicks : 0,
-    createdDate : getCreatedDate(),
-    uniqueClicks : 0
+    userid: "user2RandomID",
+    clicks: 0,
+    createdDate: getCreatedDate(),
+    uniqueClicks: []
   },
   "abc" : {
     id: "abc",
     longURL: "http://www.example.com",
-    userid : "test",
-    clicks : 0,
-    createdDate : getCreatedDate(),
-    uniqueClicks : 0
+    userid: "test",
+    clicks: 0,
+    createdDate: getCreatedDate(),
+    uniqueClicks: []
   },
   "xyz" : {
     id: "xyz",
     longURL: "http://abc.xyz",
-    userid : "test",
-    clicks : 0,
-    createdDate : getCreatedDate(),
-    uniqueClicks : 0
+    userid: "test",
+    clicks: 0,
+    createdDate: getCreatedDate(),
+    uniqueClicks: []
   }
 };
 
@@ -94,9 +94,9 @@ function getCreatedDate(){
   return today = dd + '/' + mm + '/' + yyyy;
 }
 
-function checkEmailExistence(email, users){
-  for(let uid in users){
-    if(email === users[uid].email){
+function checkExistence(identifier, database, property){
+  for(let id in database){
+    if(identifier === database[id][property]){
       return true;
     }
   }
@@ -132,15 +132,6 @@ function urlsForUser(id){
     }
   }
   return result;
-}
-
-function checkValidShortId(id){
-  for(let url in urlDatabase){
-    if(id === urlDatabase[url].id){
-      return true;
-    }
-  }
-  return false;
 }
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -183,10 +174,12 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  if(checkValidShortId(req.params.shortURL)){
-    let longURL = urlDatabase[req.params.shortURL].longURL;
+  let shortURL = req.params.shortURL;
+
+  if(shortURL in urlDatabase){
+    let longURL = urlDatabase[shortURL].longURL;
     if(longURL){
-      urlDatabase[req.params.shortURL].clicks += 1;
+      urlDatabase[shortURL].clicks += 1;
       res.redirect(longURL);
       return;
     }
@@ -195,15 +188,14 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:id', function(req, res){
-  if(checkValidShortId(req.params.id)){
+  if(checkExistence(req.params.id, urlDatabase, "id")){
     let templateVars = {
       url : urlDatabase[req.params.id],
       shortURL : req.params.id,
-      longURL: urlDatabase[req.params.id].longURL,
-      user : users[req.session["user_id"]]
+      longURL: urlDatabase[req.params.id].longURL
     };
-    if(templateVars.user){
-      if(users[req.session["user_id"]].id === urlDatabase[req.params.id].userid){
+    if(req.loggedIn){
+      if(res.locals.user.id === urlDatabase[req.params.id].userid){
         res.status(200).render('urls_show', templateVars);
         return;
       }
@@ -216,10 +208,10 @@ app.get('/urls/:id', function(req, res){
 
 app.get('/login', (req,res) => {
   if(req.loggedIn){
-    res.render('login');
+    res.status(301).redirect('/urls');
     return;
   }
-    res.status(301).redirect('/urls');
+    res.render('login');
 });
 
 app.post("/urls", (req, res) => {
@@ -229,7 +221,8 @@ app.post("/urls", (req, res) => {
     longURL : req.body.longURL,
     userid : users[req.session["user_id"]].id,
     clicks : 0,
-    createdDate : getCreatedDate()
+    createdDate : getCreatedDate(),
+    uniqueClicks : 0
   };
   res.redirect(`/urls/${urlShortName}`);
 });
@@ -268,7 +261,7 @@ app.post('/register', function(req, res){
     return;
   }
 
-  if(checkEmailExistence(req.body.email)){
+  if(checkExistence(req.body.email, users, "email")){
     res.status(400);
     res.send("Email already exists");
     return;
@@ -285,7 +278,7 @@ app.post('/register', function(req, res){
 
 
 app.post('/login', function(req, res){
-  if(checkEmailExistence(req.body.email, users)){
+  if(checkExistence(req.body.email, users, "email")){
     if(checkPassword(req.body.email, req.body.password, users)){
       let userId = lookupUserId(req.body.email, users);
       req.session["user_id"] = userId;

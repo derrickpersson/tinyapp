@@ -1,9 +1,3 @@
 Need to add /register redirect for logged in users. (served up with a static resource page)
 
-
-app.use(function(req, res, next){
-  res.locals.user = users[req.session["user_id"]];
-  req.loggedIn = !!res.locals.user;
-  next();
-});
-
+When logged in & just leaving page (i.e. exit), won't delete the cookie, therefore application thinks it is logged in and redirects when going to the login page.

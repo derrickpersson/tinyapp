@@ -107,13 +107,12 @@ function checkPassword(email, password, users){
 }
 
 function lookupUserId(email, users){
-  let result = "";
   for(let user in users){
     if(email === users[user].email){
-      result = users[user].id;
+      return users[user].id;
     }
   }
-  return result;
+  return undefined;
 }
 
 function urlsForUser(id){
@@ -140,7 +139,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ["Secrets!!"]
 }));
-app.use(express.static('public'));
 
 app.use(function(req, res, next){
   res.locals.user = users[req.session["user_id"]];
@@ -148,30 +146,36 @@ app.use(function(req, res, next){
   next();
 });
 
-// Get the URLs page if logged in, otherwise re-direct to Login.
-app.get("/", (req, res) => {
-  if(req.logginIn){
-    res.redirect("/urls");
+app.use("/urls", function(req, res, next){
+  if(req.loggedIn){
+    next();
   }else{
     res.redirect('/login');
   }
 });
 
-app.get('/urls', function(req, res){
-  let templateVar = {
-    urls: urlsForUser(req.session["user_id"]),
-  };
-  res.render('urls_index', templateVar);
-});
-
-
 app.get('/urls/new', (req, res) => {
-  if(req.loggedIn){
   res.render("urls_new");
-  }else{
-  res.redirect('/login');
-  }
 });
+
+app.use('/urls/:id', function(req, res, next){
+  if(checkExistence(req.params.id, urlDatabase, "id")){
+    next();
+  }else{
+    res.status(400).send("Invalid request");
+  }
+})
+
+// Get the URLs page if logged in, otherwise re-direct to Login.
+app.get("/", (req, res) => {
+    res.redirect("/urls");
+});
+
+app.get('/urls', function(req, res){
+  res.render('urls_index', { urls: urlsForUser(req.session["user_id"]) });
+});
+
+
 
 
 app.get("/u/:shortURL", (req, res) => {
@@ -192,22 +196,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:id', function(req, res){
-  if(checkExistence(req.params.id, urlDatabase, "id")){
-    let templateVars = {
-      url : urlDatabase[req.params.id],
-      shortURL : req.params.id,
-      longURL: urlDatabase[req.params.id].longURL
-    };
-    if(req.loggedIn){
-      if(res.locals.user.id === urlDatabase[req.params.id].userid){
-        res.status(200).render('urls_show', templateVars);
-        return;
-      }
-    }
-    res.status(401).send("Invalid request");
-  }else{
-    res.status(400).send("Invalid request");
-  }
+  let templateVars = {
+    url : urlDatabase[req.params.id],
+    shortURL : req.params.id,
+    longURL: urlDatabase[req.params.id].longURL
+  };
+  res.status(200).render('urls_show', templateVars);
+  return;
 });
 
 app.get('/login', (req,res) => {
@@ -218,8 +213,17 @@ app.get('/login', (req,res) => {
     res.render('login');
 });
 
+app.get('/register', (req, res) => {
+  if(req.loggedIn){
+    res.status(301).redirect('/urls');
+    return;
+  }else{
+    res.render('register');
+  }
+})
+
 app.post("/urls", (req, res) => {
-  let urlShortName = generateRandomString();
+  const urlShortName = generateRandomString();
   urlDatabase[urlShortName] = {
     id : urlShortName,
     longURL : req.body.longURL,

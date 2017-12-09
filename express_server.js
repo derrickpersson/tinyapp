@@ -97,44 +97,28 @@ const urlDatabase = {
     id: "b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
     userid: "userRandomID",
-    visits: [{
-      time:"today",
-      visitorId: "123"
-    }],
-    // uniqueVisits: getUniqueVisits(this.visits)
+    visits: []
   },
   "9sm5xK": {
     id: "9sm5xK",
     longURL: "http://www.google.com",
     userid: "user2RandomID",
     createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }],
-    // uniqueVisits: getUniqueVisits(this.visits)
+    visits: []
   },
   "abc": {
     id: "abc",
     longURL: "http://www.example.com",
     userid: "test",
     createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }],
-    // uniqueVisits: getUniqueVisits(this.visits)
+    visits: []
   },
   "xyz": {
     id: "xyz",
     longURL: "http://abc.xyz",
     userid: "test",
     createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }],
-    // uniqueVisits: getUniqueVisits(this.visits)
+    visits:[]
   }
 };
 
@@ -210,31 +194,11 @@ app.get('/urls', function(req, res){
 
 
 app.get("/u/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
+  const shortURL = req.params.shortURL;
 
   if(shortURL in urlDatabase){
-    let longURL = urlDatabase[shortURL].longURL;
+    const longURL = urlDatabase[shortURL].longURL;
     if(longURL){
-      // if(!req.loggedIn){
-      //     let id = generateRandomString();
-      //     users[id] = {
-      //         "id" : id
-      //       };
-      //   req.session["user_id"] = users[id].id;
-      // }
-      // if(checkUniqueVisit(req.session["user_id"], urlDatabase[shortURL].uniqueClicks)){
-      //   urlDatabase[shortURL].uniqueClicks.push(req.session["user_id"]);
-      // }
-      // let visitId = generateRandomString();
-      // visits[visitId] = {
-      //   "id": visitId,
-      //   "shortURL": shortURL
-      // }
-
-      // req.session["visit_id"] = visitId;
-      // if(checkUniqueVisit(visitId, urlDatabase[shortURL].visits)){
-      //   urlDatabase[shortURL].visits[visitId].push(visitId);
-      // }
       urlDatabase[shortURL].visits.push({
         "time": new Date(),
         "visitorId": req.session.visitorId
@@ -247,7 +211,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:id', function(req, res){
-  let templateVars = {
+  const templateVars = {
     url : urlDatabase[req.params.id],
     shortURL : req.params.id,
     longURL: urlDatabase[req.params.id].longURL
@@ -276,12 +240,11 @@ app.get('/register', (req, res) => {
 app.post("/urls", (req, res) => {
   const urlShortName = generateRandomString();
   urlDatabase[urlShortName] = {
-    id : urlShortName,
-    longURL : req.body.longURL,
-    userid : users[req.session["user_id"]].id,
-    clicks : 0,
-    createdDate : getCreatedDate(),
-    uniqueClicks : 0
+    id: urlShortName,
+    longURL: req.body.longURL,
+    userid: users[req.session["user_id"]].id,
+    createdDate: getCreatedDate(),
+    visits: []
   };
   res.redirect(`/urls/${urlShortName}`);
 });
@@ -326,7 +289,7 @@ app.post('/register', function(req, res){
     return;
   }
 
-  let id = generateRandomString();
+  const id = generateRandomString();
   users[id] = {
     "id" : id,
     "email" : req.body.email,
@@ -340,7 +303,7 @@ app.post('/register', function(req, res){
 app.post('/login', function(req, res){
   if(checkExistence(req.body.email, users, "email")){
     if(checkPassword(req.body.email, req.body.password, users)){
-      let userId = lookupUserId(req.body.email, users);
+      const userId = lookupUserId(req.body.email, users);
       req.session["user_id"] = userId;
       res.redirect('/urls');
     }else{
@@ -349,7 +312,7 @@ app.post('/login', function(req, res){
     }
   }else{
     res.status(403);
-    res.send("Invalid Username");
+    res.send("Invalid Username.");
   }
 })
 

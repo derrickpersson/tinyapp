@@ -6,15 +6,6 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 
-function generateRandomString(){
-  let text = "";
-  let possibleText = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for(let i = 0; i < 6; i++){
-    let randomLetter = Math.floor(Math.random() * (possibleText.length));
-    text += possibleText[randomLetter];
-  }
-  return text;
-}
 
 app.set('view engine', 'ejs');
 
@@ -69,6 +60,16 @@ const users = {
     email: "test@example.com",
     password: bcrypt.hashSync("test", 11)
   }
+}
+
+function generateRandomString(){
+  let text = "";
+  let possibleText = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for(let i = 0; i < 6; i++){
+    let randomLetter = Math.floor(Math.random() * (possibleText.length));
+    text += possibleText[randomLetter];
+  }
+  return text;
 }
 
 function getCreatedDate(){
@@ -133,6 +134,8 @@ function checkUniqueVisit(user, previousVisits){
   }
   return true;
 }
+
+app.use(methodOverride('_method'));
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -235,7 +238,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${urlShortName}`);
 });
 
-app.post('/urls/:id', function(req, res){
+app.put('/urls/:id', function(req, res){
   if(res.locals.user.id === urlDatabase[req.params.id].userid){
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.status(200);
@@ -246,7 +249,7 @@ app.post('/urls/:id', function(req, res){
   }
 })
 
-app.post('/urls/:id/delete', function(req, res){
+app.delete('/urls/:id/delete', function(req, res){
   if(res.locals.user.id === urlDatabase[req.params.id].userid){
     delete urlDatabase[req.params.id];
     res.status(200);

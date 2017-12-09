@@ -12,7 +12,7 @@
   <br>
   <ul>
     <% for(let url in urls){ %>
-      <li> <a href="/u/<%= url %>"><%= url %></a> &rarr; <a href="<%= urls[url].longURL %>"><%= urls[url].longURL %></a> || Created Date: <%= urls[url].createdDate %> || Visits: <%= urls[url].clicks %> || Unique Visits: <%= urls[url].uniqueClicks.length %> || <a href="/urls/<%= url %>">Edit</a> || <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete`%>><button type="submit" name="Submit">Delete</button></form> </li>
+      <li> <a href="/u/<%= url %>"><%= url %></a> &rarr; <a href="<%= urls[url].longURL %>"><%= urls[url].longURL %></a> || Created Date: <%= urls[url].createdDate %> || Visits: <%= urls[url].clicks %> || Unique Visits: <%= urls[url].uniqueClicks.length %> || <a href="/urls/<%= url %>">Edit</a> || <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete?_method=DELETE`%>><button type="submit" name="Submit">Delete</button></form> </li>
        <% } %>
   </ul>
 </body>

@@ -12,7 +12,13 @@
   <br>
   <ul>
     <% for(let url in urls){ %>
-      <li> <a href="/u/<%= url %>"><%= url %></a> &rarr; <a href="<%= urls[url].longURL %>"><%= urls[url].longURL %></a> || Created Date: <%= urls[url].createdDate %> || Visits: <%=  %> || Unique Visits: <%= %> || <a href="/urls/<%= url %>">Edit</a> || <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete?_method=DELETE`%>><button type="submit" name="Submit">Delete</button></form> </li>
+      <li> <a href="/u/<%= url %>"><%= url %></a> &rarr; <a href="<%= urls[url].longURL %>"><%= urls[url].longURL %></a> || Created Date: <%= urls[url].createdDate %> || Visits: <%= urls[url].visits.length %> || Unique Visits:
+      <% let results = {}; %>
+      <% for(let i = 0; i < urls[url].visits.length; i++){ %>
+        <% results[urls[url].visits[i].visitorId] = true; %>
+      <% } %>
+      <%= Object.keys(results).length %>
+      || <a href="/urls/<%= url %>">Edit</a> || <form style="display:inline" method="POST" action=<%=`/urls/${url}/delete?_method=DELETE`%>><button type="submit" name="Submit">Delete</button></form> </li>
        <% } %>
   </ul>
 </body>

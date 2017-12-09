@@ -6,74 +6,10 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 
-
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
-  "b2xVn2": {
-    id: "b2xVn2",
-    longURL: "http://www.lighthouselabs.ca",
-    userid: "userRandomID",
-    visits: [{
-      time:"",
-      visitorId: ""
-    }
-    ]
-  },
-  "9sm5xK": {
-    id: "9sm5xK",
-    longURL: "http://www.google.com",
-    userid: "user2RandomID",
-    createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }
-    ]
-  },
-  "abc": {
-    id: "abc",
-    longURL: "http://www.example.com",
-    userid: "test",
-    createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }
-    ]
-  },
-  "xyz": {
-    id: "xyz",
-    longURL: "http://abc.xyz",
-    userid: "test",
-    createdDate: getCreatedDate(),
-    visits: [{
-      time:"",
-      visitorId: ""
-    }
-    ]
-  }
-};
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 11)
-  },
- "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 11)
-  },
-   "test": {
-    id: "test",
-    email: "test@example.com",
-    password: bcrypt.hashSync("test", 11)
-  }
-}
-
-
+// Helper functions
 function generateRandomString(){
   let text = "";
   let possibleText = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -150,9 +86,74 @@ function checkUniqueVisit(user, previousVisits){
 function getUniqueVisits(visits){
   let results = {};
   for(let i = 0; i < visits.length; i++){
-    results[visits[i]] = true;
+    results[visits[i].visitorId] = true;
   }
-  return Object.keys(results);
+  return Object.keys(results).length;
+}
+
+// Initial Database (Example data)
+const urlDatabase = {
+  "b2xVn2": {
+    id: "b2xVn2",
+    longURL: "http://www.lighthouselabs.ca",
+    userid: "userRandomID",
+    visits: [{
+      time:"today",
+      visitorId: "123"
+    }],
+    // uniqueVisits: getUniqueVisits(this.visits)
+  },
+  "9sm5xK": {
+    id: "9sm5xK",
+    longURL: "http://www.google.com",
+    userid: "user2RandomID",
+    createdDate: getCreatedDate(),
+    visits: [{
+      time:"",
+      visitorId: ""
+    }],
+    // uniqueVisits: getUniqueVisits(this.visits)
+  },
+  "abc": {
+    id: "abc",
+    longURL: "http://www.example.com",
+    userid: "test",
+    createdDate: getCreatedDate(),
+    visits: [{
+      time:"",
+      visitorId: ""
+    }],
+    // uniqueVisits: getUniqueVisits(this.visits)
+  },
+  "xyz": {
+    id: "xyz",
+    longURL: "http://abc.xyz",
+    userid: "test",
+    createdDate: getCreatedDate(),
+    visits: [{
+      time:"",
+      visitorId: ""
+    }],
+    // uniqueVisits: getUniqueVisits(this.visits)
+  }
+};
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 11)
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: bcrypt.hashSync("dishwasher-funk", 11)
+  },
+   "test": {
+    id: "test",
+    email: "test@example.com",
+    password: bcrypt.hashSync("test", 11)
+  }
 }
 
 app.use(methodOverride('_method'));

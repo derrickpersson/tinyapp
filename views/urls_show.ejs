@@ -12,9 +12,21 @@
       <button type="submit" name="Submit">Update</button>
      </form>
     </p>
-    <P> Clicks: <%=  %></P>
+    <P> Clicks: <%= url.visits.length %></P>
     <p> Created Date: <%= url.createdDate %> </p>
-    <p> Unique Visits: <%=  %> </p>
+    <p> Unique Visits:
+      <% let results = {}; %>
+      <% for(let i = 0; i < url.visits.length; i++){ %>
+        <% results[url.visits[i].visitorId] = true; %>
+      <% } %>
+      <%= Object.keys(results).length %>
+     </p>
+    <p> Visits:
+      <ul>
+        <% for(let i = 0; i < url.visits.length; i++){ %>
+          <li> Time: <%= url.visits[i].time %> || VisitorId: <%= url.visits[i].visitorId %> </li>
+        <% } %>
+      </ul>
   </div>
 </body>
 </html>

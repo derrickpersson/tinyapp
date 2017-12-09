@@ -14,33 +14,44 @@ const urlDatabase = {
     id: "b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
     userid: "userRandomID",
-    clicks: 0,
-    createdDate: getCreatedDate(),
-    uniqueClicks: []
+    visits: [{
+      time:"",
+      visitorId: ""
+    }
+    ]
   },
   "9sm5xK": {
     id: "9sm5xK",
     longURL: "http://www.google.com",
     userid: "user2RandomID",
-    clicks: 0,
     createdDate: getCreatedDate(),
-    uniqueClicks: []
+    visits: [{
+      time:"",
+      visitorId: ""
+    }
+    ]
   },
-  "abc" : {
+  "abc": {
     id: "abc",
     longURL: "http://www.example.com",
     userid: "test",
-    clicks: 0,
     createdDate: getCreatedDate(),
-    uniqueClicks: []
+    visits: [{
+      time:"",
+      visitorId: ""
+    }
+    ]
   },
-  "xyz" : {
+  "xyz": {
     id: "xyz",
     longURL: "http://abc.xyz",
     userid: "test",
-    clicks: 0,
     createdDate: getCreatedDate(),
-    uniqueClicks: []
+    visits: [{
+      time:"",
+      visitorId: ""
+    }
+    ]
   }
 };
 
@@ -61,6 +72,7 @@ const users = {
     password: bcrypt.hashSync("test", 11)
   }
 }
+
 
 function generateRandomString(){
   let text = "";
@@ -135,6 +147,19 @@ function checkUniqueVisit(user, previousVisits){
   return true;
 }
 
+function getUniqueVisits(visits){
+  console.log(visits);
+  return visits.filter(function(item){
+    for(let i = 0; i < visits.length; i++){
+      if(item === visits[i]){
+        return true;
+      }
+    }
+  });
+}
+
+console.log(getUniqueVisits([1,2,3,4,5,5,5,3,2,1]));
+
 app.use(methodOverride('_method'));
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -156,6 +181,13 @@ app.use("/urls", function(req, res, next){
     res.redirect('/login');
   }
 });
+
+app.use((req, res, next) => {
+  if(!req.session.visitorId){
+    req.session.visitorId = generateRandomString();
+  }
+  next();
+})
 
 app.get('/urls/new', (req, res) => {
   res.render("urls_new");
@@ -187,10 +219,30 @@ app.get("/u/:shortURL", (req, res) => {
   if(shortURL in urlDatabase){
     let longURL = urlDatabase[shortURL].longURL;
     if(longURL){
-      urlDatabase[shortURL].clicks += 1;
-      if(checkUniqueVisit(res.locals.user.id, urlDatabase[shortURL].uniqueClicks)){
-        urlDatabase[shortURL].uniqueClicks.push(res.locals.user.id);
-      }
+      // if(!req.loggedIn){
+      //     let id = generateRandomString();
+      //     users[id] = {
+      //         "id" : id
+      //       };
+      //   req.session["user_id"] = users[id].id;
+      // }
+      // if(checkUniqueVisit(req.session["user_id"], urlDatabase[shortURL].uniqueClicks)){
+      //   urlDatabase[shortURL].uniqueClicks.push(req.session["user_id"]);
+      // }
+      // let visitId = generateRandomString();
+      // visits[visitId] = {
+      //   "id": visitId,
+      //   "shortURL": shortURL
+      // }
+
+      // req.session["visit_id"] = visitId;
+      // if(checkUniqueVisit(visitId, urlDatabase[shortURL].visits)){
+      //   urlDatabase[shortURL].visits[visitId].push(visitId);
+      // }
+      urlDatabase[shortURL].visits.push({
+        "time": new Date(),
+        "visitorId": req.session.visitorId
+      });
       res.redirect(longURL);
       return;
     }
@@ -282,8 +334,7 @@ app.post('/register', function(req, res){
   users[id] = {
     "id" : id,
     "email" : req.body.email,
-    "password" : bcrypt.hashSync(req.body.password, 11),
-    "loggedin" : true
+    "password" : bcrypt.hashSync(req.body.password, 11)
   };
   req.session["user_id"] = users[id].id;
   res.redirect('/urls');

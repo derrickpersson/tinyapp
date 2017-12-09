@@ -6,6 +6,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 
+//Set EJS as the view engine for rendering pages
 app.set('view engine', 'ejs');
 
 
@@ -145,7 +146,7 @@ app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
-  keys: ["Secrets!!"]
+  keys: ["Secrets!!", "Other more secret secrets", "Even more secret secret secrets!!!"]
 }));
 
 app.use(function(req, res, next){

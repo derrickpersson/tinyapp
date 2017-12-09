@@ -1,3 +1,0 @@
-Need to add /register redirect for logged in users. (served up with a static resource page)
-
-When logged in & just leaving page (i.e. exit), won't delete the cookie, therefore application thinks it is logged in and redirects when going to the login page.

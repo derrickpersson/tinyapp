@@ -148,17 +148,12 @@ function checkUniqueVisit(user, previousVisits){
 }
 
 function getUniqueVisits(visits){
-  console.log(visits);
-  return visits.filter(function(item){
-    for(let i = 0; i < visits.length; i++){
-      if(item === visits[i]){
-        return true;
-      }
-    }
-  });
+  let results = {};
+  for(let i = 0; i < visits.length; i++){
+    results[visits[i]] = true;
+  }
+  return Object.keys(results);
 }
-
-console.log(getUniqueVisits([1,2,3,4,5,5,5,3,2,1]));
 
 app.use(methodOverride('_method'));
 
